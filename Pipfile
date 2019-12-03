@@ -8,6 +8,7 @@ verify_ssl = true
 # Estos son los paquetes que siempre se van instalar
 mypy = "*"
 flake8 = "*"
+pylint = "*"
 
 [packages]
 matplotlib = "*"

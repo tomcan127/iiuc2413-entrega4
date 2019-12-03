@@ -13,11 +13,14 @@ uri = "mongodb://grupo15:grupo15@gray.ing.puc.cl/grupo15"
 client = MongoClient(uri)
 db = client.get_database()
 
+usuarios = db.usuarios
+
 # Iniciamos la aplicación de flask
 app = Flask(__name__)
 
 @app.route("/")
 def home():
+    db.mensajes.drop()
     return "<h1>HELLO</h1>"
 
 # Mapeamos esta función a la ruta '/plot' con el método get.
@@ -29,11 +32,11 @@ def plot():
     # Retorna un html "rendereado"
     return render_template('plot.html')
 
-@app.route("/messages")
+@app.route("/users")
 def get_users():
     # Omitir el _id porque no es json serializable
-    resultados = db.messages.find()
-    return resultados[0]["content"]
+    resultados = [u for u in db.mensajes.find({}, {"_id": 0})]
+    return json.jsonify(resultados)
 
 @app.route("/users", methods=['POST'])
 def create_user():
@@ -60,7 +63,7 @@ def test():
     return "OK"
 
 
-@app.route('/saludo', methods=['GET'])
+@app.route('/messages', methods=['GET'])
 def formulario():
     # Comprobamos si viene el parametro por GET
     try:
@@ -72,16 +75,29 @@ def formulario():
 
         sender = request.args.get('sender')
         receiver = request.args.get('receiver')
-        if (content != '' and sender != '' and receiver != '' ):
-            return db.messages.find()
+        if (content and sender and receiver):
+            correo = {"content": content, "metadata": {
+                "time": time,
+                "sender": sender,
+                "receiver": receiver
+            }}
+            db.mensajes.insert(correo)
+            return json.jsonify(f'content:{content} |')
         else:
             return render_template('formulario_get.html')
     except:
         return render_template('formulario_get.html')
 
 @app.route('/messages/<id>', methods=['GET'])
-def my_view_func(id):
-    return id
+def vista_mensaje(id):
+    resultados = [u for u in db.mensajes.find({"_id": id}, {"_id": 0})]
+    return json.jsonify(resultados)
+
+@app.route('/messages/project-search/<name>', methods=['GET'])
+def vista_proyecto(name):
+    resultados = [u for u in db.mensajes.find({"metadata.receiver": name}, {"_id": 0})]
+    resultados.append([u for u in db.mensajes.find({"metadata.sender": name}, {"_id": 0})])
+    return json.jsonify(resultados)
 
 if __name__ == "__main__":
     app.run()
