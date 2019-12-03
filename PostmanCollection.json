@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "cb853ebb-4413-4de2-85fc-15a893ac4355",
-		"name": "Ayudantia",
+		"name": "Entrega 4",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -96,7 +96,7 @@
 			"response": []
 		},
 		{
-			"name": "Create User",
+			"name": "Create Message",
 			"request": {
 				"method": "POST",
 				"header": [

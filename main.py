@@ -62,31 +62,13 @@ def test():
 
     return "OK"
 
-
-@app.route('/messages', methods=['GET'])
+@app.route('/messages', methods=['POST'])
 def formulario():
     # Comprobamos si viene el parametro por GET
-    try:
-        content = request.args.get('content')
-
-        now = datetime.now()
-        dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
-        time = dt_string
-
-        sender = request.args.get('sender')
-        receiver = request.args.get('receiver')
-        if (content and sender and receiver):
-            correo = {"content": content, "metadata": {
-                "time": time,
-                "sender": sender,
-                "receiver": receiver
-            }}
-            db.mensajes.insert(correo)
+        content = request.json
+        if (content):
+            db.mensajes.insert(content)
             return json.jsonify(f'content:{content} |')
-        else:
-            return render_template('formulario_get.html')
-    except:
-        return render_template('formulario_get.html')
 
 @app.route('/messages/<id>', methods=['GET'])
 def vista_mensaje(id):
